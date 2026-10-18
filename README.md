@@ -1,19 +1,39 @@
-# KANU Bot V3 — chapter retrieval and dua formatting update
+# KANU Bot V3 — Complete Web + Messenger Starter
 
-## Changes
-- Appends a random, lightly decorated short dua to outgoing text messages without the word "دعاء", e.g. `✨ اللهم ارزقنا راحة البال وطمأنينة القلب. ❤️`.
-- Adds an initial HTML-based chapter adapter: discovers chapter links from a configured series page, looks for chapter image URLs, downloads images within configured limits, builds a PDF, and sends it through Messenger's file-attachment API.
-- Keeps AI fallback and book request routing.
-- User-facing chapter responses do not mention the source site.
+Independent project. Do not mix these files with the older KANU/MangaDar deployment.
 
-## Manga source configuration
-The initial built-in series mapping supports Nano Machine / نانو ميشل aliases pointing at the known series page. Add further permitted series pages using the Render environment variable `MANGA_SERIES_JSON`, as a JSON object mapping aliases to series-page URLs, for example:
-`{"series alias":"https://example.org/series/example"}`
+## Included
+- Arabic RTL responsive web interface (black/red theme) served by Flask at `/`.
+- Registration/login/logout, hashed passwords, CSRF checks, and secure session-cookie defaults.
+- `/api/chat` uses the existing `llm.py` provider fallback (Groq → Cerebras → OpenRouter → NVIDIA NIM).
+- Existing Meta Messenger webhook and signature verification are retained.
+- Existing manga chapter parser/PDF adapter and book intent handler are retained.
+- `/health` endpoint for Render health checks.
 
-The adapter depends on the source's HTML exposing chapter links and reader images. Sites may use JavaScript or anti-bot protection; in that case it will fail gracefully and needs a source-specific adapter. This package has not been tested against the live source in this environment. Verify source permission/terms and test with one chapter before broad deployment.
+## Honest feature boundaries
+- Web accounts use SQLite on the service filesystem. On Render, local files can be lost on rebuild/restart unless a persistent disk or external database is configured. Do not assume account persistence on a free instance.
+- Manga PDF retrieval depends on the source being reachable and allowing access; the source may return errors or change its HTML. The web chat does not claim to attach a chapter PDF.
+- The book handler currently supports known routing/intent cases; it is not a universal book search or PDF downloader.
+- No email verification, password reset, account deletion, or production-grade rate limiting is included. This is a starter deployment, not a fully audited production identity service.
 
-## Messenger delivery
-Requires `PAGE_ACCESS_TOKEN`, `VERIFY_TOKEN`, `FACEBOOK_APP_SECRET`, and at least one AI provider key. Check current Meta attachment requirements and limits for the app/page. Temporary PDFs are deleted after the send attempt.
+## Required deployment environment
+- `SECRET_KEY`: a long random secret. Render Blueprint can generate one using `render.yaml`.
+- At least one AI key: `GROQ_API_KEY`, `CEREBRAS_API_KEY`, `OPENROUTER_API_KEY`, or `NVIDIA_API_KEY`.
+- For Messenger, preserve the existing `VERIFY_TOKEN`, `FACEBOOK_APP_SECRET`, and `PAGE_ACCESS_TOKEN` values in Render. Never commit these values to GitHub.
 
-## Security and cost
-Never commit secrets. Free hosting/API quotas and source availability can change. Do not enable unsigned webhooks in production.
+Optional environment variables are documented in `.env.example`. That file contains placeholders only.
+
+## Render
+`render.yaml` uses Python 3.12, `pip install -r requirements.txt`, `gunicorn app:app --workers 1 --threads 4 --timeout 60`, and health check `/health`.
+
+After deployment, check:
+1. `/` shows the KANU HTML interface, not JSON.
+2. `/health` returns a small JSON status response.
+3. Register/login and chat are tested with an AI provider key configured.
+4. Test Messenger separately; a healthy web page does not prove Meta delivery works.
+
+## Uploading on GitHub
+Upload the **contents** of this archive into the repository root while preserving the folders `templates/` and `static/`. Do not upload only the ZIP file. `templates/index.html`, `static/style.css`, and `static/app.js` must keep these exact paths. Replace the old `app.py` with this archive's `app.py`. Keep any existing Render secrets unchanged. The old root-level `index.html` and `style.css` files are not used by Flask; do not rename them to replace the nested files.
+
+## Local smoke check
+Install dependencies from `requirements.txt`, set a test `SECRET_KEY`, set `COOKIE_SECURE=false` for plain local HTTP, and run `python app.py`. The site opens at `http://127.0.0.1:5000`.
