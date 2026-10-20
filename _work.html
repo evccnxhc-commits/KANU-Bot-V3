@@ -1,0 +1,7 @@
+<a class="work" href="/{{ kind }}/{{ it.slug }}" data-title="{{ (it.title ~ ' ' ~ (it.title_ar or '')) | lower }}" data-cats="{{ it.categories | join('|') }}">
+  {% set tone = (it.slug | length) % 4 %}
+  {% if it.cover %}<div class="cover"><img src="{{ it.cover }}" alt="غلاف {{ it.title }}" loading="lazy"></div>
+  {% else %}<div class="cover tone-{{ tone }}"><span class="cover-title"><bdi>{{ it.title }}</bdi></span><i class="cover-flag">{{ 'عرض تجريبي' if it.demo else 'بلا غلاف' }}</i></div>{% endif %}
+  <h3><bdi>{{ it.title_ar or it.title }}</bdi></h3>
+  <p class="meta">{% if it.categories %}{{ it.categories | join(' · ') }}{% elif it.source_name %}{{ it.source_name }}{% else %}&nbsp;{% endif %}</p>
+</a>

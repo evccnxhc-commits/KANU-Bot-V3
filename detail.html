@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ item.title_ar or item.title }} — KANU{% endblock %}
+{% block bodyclass %}lib-page{% endblock %}
+{% block body %}
+<header class="lib-top">
+  <a class="brand" href="/">KANU<i></i></a>
+  {% set active = kind %}{% include "_nav.html" %}
+</header>
+<main class="lib detail" id="detail" data-kind="{{ kind }}" data-slug="{{ item.slug }}" data-title="{{ item.title }}">
+  <a class="crumb" href="/{{ kind }}"><svg class="ic flip"><use href="#i-back"/></svg>{{ 'المانهوا' if kind == 'manga' else 'الروايات' }}</a>
+  <div class="detail-grid">
+    {% set it = item %}
+    <div class="detail-cover">{% if item.cover %}<div class="cover"><img src="{{ item.cover }}" alt="غلاف {{ item.title }}"></div>
+      {% else %}<div class="cover tone-{{ (item.slug | length) % 4 }}"><span class="cover-title"><bdi>{{ item.title }}</bdi></span><i class="cover-flag">{{ 'عرض تجريبي' if item.demo else 'بلا غلاف' }}</i></div>{% endif %}</div>
+    <div class="detail-info">
+      <h1><bdi>{{ item.title_ar or item.title }}</bdi></h1>
+      {% if item.title_ar %}<p class="alt" dir="ltr">{{ item.title }}</p>{% endif %}
+      {% if item.categories %}<p class="meta">{{ item.categories | join(' · ') }}</p>{% endif %}
+      {% if item.demo %}<p class="banner">عنصر عرض تجريبي، ليس عملًا حقيقيًا ولا له مصدر.</p>{% endif %}
+
+      <section class="block">
+        <h2>المصدر</h2>
+        {% if item.source_url %}
+        <p class="src"><span dir="ltr">{{ item.source_name or item.source_url.split('/')[2] }}</span></p>
+        <button class="text-btn" id="checkSource" type="button"><svg class="ic"><use href="#i-refresh"/></svg>افحص التوفر الآن</button>
+        <p class="status" id="sourceStatus" role="status">لم يُفحص بعد. التوفر يتغير ولا يُفترض.</p>
+        {% if kind == 'novels' %}<a class="text-btn ext" href="{{ item.source_url }}" target="_blank" rel="noopener noreferrer"><svg class="ic"><use href="#i-external"/></svg>فتح الصفحة في المصدر</a>{% endif %}
+        {% else %}<p class="status">لا يوجد مصدر مُعدّ لهذا العمل.</p>{% endif %}
+      </section>
+
+      {% if kind == 'manga' and item.source_url %}
+      <section class="block">
+        <h2>الفصول</h2>
+        <button class="text-btn" id="loadChapters" type="button"><svg class="ic"><use href="#i-refresh"/></svg>تحميل قائمة الفصول من المصدر</button>
+        <p class="status" id="chaptersStatus" role="status">القائمة تُجلب مباشرة من المصدر عند الطلب.</p>
+        <ol class="chapters hidden" id="chapterList"></ol>
+        <form class="ask" id="askForm">
+          <label for="chapterNo">رقم الفصل</label>
+          <input id="chapterNo" type="number" inputmode="decimal" min="0" step="any" required dir="ltr">
+          <button class="primary small" type="submit">اطلب في المحادثة</button>
+        </form>
+        <p class="status">يفتح الطلب في المحادثة. إرسال ملف الفصل يتم عبر Messenger فقط، ولا يُعلن عن الإرسال قبل تأكيده.</p>
+      </section>
+      {% elif kind == 'novels' %}
+      <section class="block"><h2>القراءة والتنزيل</h2><p class="status">يتم على موقع المصدر نفسه. لا يرسل KANU ملف الكتاب مباشرة.</p></section>
+      {% endif %}
+    </div>
+  </div>
+</main>
+<footer class="lib-foot"><span dir="ltr">© KANU</span>{% include "_sponsor.html" %}</footer>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='library.js') }}" defer></script>{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% set title_ar = 'المانهوا' if kind == 'manga' else 'الروايات' %}
+{% block title %}{{ title_ar }} — KANU{% endblock %}
+{% block bodyclass %}lib-page{% endblock %}
+{% block body %}
+<header class="lib-top">
+  <a class="brand" href="/">KANU<i></i></a>
+  {% set active = kind %}{% include "_nav.html" %}
+</header>
+<main class="lib">
+  <div class="lib-head">
+    <h1>{{ title_ar }}</h1>
+    <p class="lead">{% if kind == 'manga' %}الأعمال التي أُعدّ لها مصدر في KANU. توفر الفصول يُفحص من المصدر ولا يُفترض.{% else %}الكتب التي أُعدّ لها مصدر في KANU. القراءة والتنزيل يتمان على موقع المصدر.{% endif %}</p>
+  </div>
+  {% if demo_mode %}<p class="banner">وضع العرض التجريبي مفعّل: العناوين المشار إليها «عرض تجريبي» ليست كتالوجًا حقيقيًا.</p>{% endif %}
+
+  {% if items %}
+  <div class="lib-tools">
+    <label class="search line"><svg class="ic"><use href="#i-search"/></svg><input id="libSearch" type="search" placeholder="ابحث بالعنوان" aria-label="ابحث بالعنوان" autocomplete="off"></label>
+    {% if categories %}<div class="chips" id="chips"><button type="button" class="on" data-cat="">الكل</button>{% for c in categories %}<button type="button" data-cat="{{ c }}">{{ c }}</button>{% endfor %}</div>{% endif %}
+  </div>
+
+  {% set featured = items | selectattr('featured') | list %}
+  {% set recent = items | selectattr('added') | sort(attribute='added', reverse=True) | list %}
+  {% if featured %}<h2 class="sec">مقترحة</h2>
+  <div class="grid">{% for it in featured %}{% include "_work.html" %}{% endfor %}</div>{% endif %}
+  {% if recent %}<h2 class="sec">أُضيفت حديثًا</h2>
+  <div class="grid">{% for it in recent[:6] %}{% include "_work.html" %}{% endfor %}</div>{% endif %}
+
+  <h2 class="sec">كل الأعمال <span class="count" id="count">{{ items | length }}</span></h2>
+  <div class="grid" id="grid">{% for it in items %}{% include "_work.html" %}{% endfor %}</div>
+  <p class="empty-note hidden" id="noMatch">لا توجد نتائج مطابقة.</p>
+  {% else %}
+  <div class="void"><p>لا توجد أعمال مُعدّة بعد.</p><p class="sub">تُضاف الأعمال من الملف <code>data/{{ kind }}.json</code> في المستودع، ولا يعرض KANU عناوين لم تؤكدها أنت.</p></div>
+  {% endif %}
+</main>
+<footer class="lib-foot"><span dir="ltr">© KANU</span>{% include "_sponsor.html" %}</footer>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='library.js') }}" defer></script>{% endblock %}

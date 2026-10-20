@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ status }} — KANU{% endblock %}
+{% block bodyclass %}lib-page{% endblock %}
+{% block body %}
+<header class="lib-top"><a class="brand" href="/">KANU<i></i></a></header>
+<main class="lib err">
+  <p class="code">{{ status }}</p>
+  <h1>{{ title }}</h1>
+  <p class="lead">{{ message }}</p>
+  <p><a class="text-btn" href="/">العودة إلى المحادثات</a></p>
+</main>
+{% endblock %}

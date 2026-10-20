@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}KANU — المحادثات{% endblock %}
+{% block bodyclass %}chat-page{% endblock %}
+{% block body %}
+<div class="app" id="app">
+  <aside class="rail" id="rail" aria-label="المحادثات">
+    <div class="rail-head">
+      <a class="brand" href="/">KANU<i></i></a>
+      <button class="icon-btn only-mobile" id="railClose" type="button" aria-label="إغلاق القائمة"><svg class="ic"><use href="#i-close"/></svg></button>
+    </div>
+    {% set active = 'chat' %}{% include "_nav.html" %}
+    <div class="rail-tools">
+      <label class="search"><svg class="ic"><use href="#i-search"/></svg><input id="convSearch" type="search" placeholder="ابحث في المحادثات" aria-label="ابحث في المحادثات" autocomplete="off"></label>
+      <button class="icon-btn solid" id="newChat" type="button" aria-label="محادثة جديدة" title="محادثة جديدة"><svg class="ic"><use href="#i-plus"/></svg></button>
+    </div>
+    <ul class="convs" id="convList" aria-live="polite"></ul>
+    <div class="rail-foot">
+      <button class="account" id="accountButton" type="button"><svg class="ic"><use href="#i-user"/></svg><span id="accountLabel">تسجيل الدخول</span></button>
+      {% include "_sponsor.html" %}
+    </div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <section class="pane">
+    <header class="pane-head">
+      <button class="icon-btn only-mobile" id="railOpen" type="button" aria-label="القائمة"><svg class="ic"><use href="#i-menu"/></svg></button>
+      <div class="pane-title"><h1 id="convTitle">محادثة جديدة</h1><span class="presence" id="presence">KANU</span></div>
+    </header>
+    <div class="scroll" id="scroll">
+      <div class="empty" id="empty">
+        <p class="empty-line">اكتب رسالتك للبدء.</p>
+        <ul class="starters">
+          <li><button type="button" data-prompt="اشرح لي فكرة صعبة بطريقة بسيطة">اشرح لي فكرة صعبة بطريقة بسيطة</button></li>
+          <li><button type="button" data-prompt="ساعدني أرتب أفكاري وخطتي لهذا الأسبوع">ساعدني أرتب خطتي لهذا الأسبوع</button></li>
+          <li><button type="button" data-prompt="اقترح لي شيئًا جديدًا أتعلمه اليوم">اقترح لي شيئًا أتعلمه اليوم</button></li>
+        </ul>
+      </div>
+      <div class="messages" id="messages" aria-live="polite"></div>
+    </div>
+    <form class="composer" id="chatForm" autocomplete="off">
+      <textarea id="messageInput" rows="1" maxlength="4000" placeholder="اكتب رسالة" aria-label="رسالتك" disabled></textarea>
+      <button class="send" id="sendButton" type="submit" aria-label="إرسال" disabled><svg class="ic"><use href="#i-send"/></svg></button>
+    </form>
+  </section>
+</div>
+
+<div class="overlay hidden" id="authOverlay" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <div class="auth">
+    <button class="icon-btn auth-close" id="closeAuth" type="button" aria-label="إغلاق"><svg class="ic"><use href="#i-close"/></svg></button>
+    <div class="brand big">KANU<i></i></div>
+    <h2 id="authTitle">تسجيل الدخول</h2>
+    <div class="seg" role="tablist"><button type="button" class="on" data-mode="login">دخول</button><button type="button" data-mode="register">حساب جديد</button></div>
+    <form id="authForm">
+      <label for="username">اسم المستخدم</label>
+      <input id="username" name="username" autocomplete="username" minlength="3" maxlength="24" required dir="ltr" inputmode="text" autocapitalize="none" spellcheck="false">
+      <label for="password">كلمة المرور</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" minlength="10" maxlength="128" required dir="ltr">
+      <p class="hint hidden" id="passwordHint">10 أحرف على الأقل، مع حرف ورقم.</p>
+      <button class="primary" id="authSubmit" type="submit">دخول</button>
+      <p class="form-error" id="authError" role="alert"></p>
+    </form>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='chat.js') }}" defer></script>{% endblock %}
